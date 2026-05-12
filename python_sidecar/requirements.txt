@@ -1,0 +1,3 @@
+# The sidecar is deliberately stdlib-only at runtime so the bundled app has
+# no Python install step. Listed here for the optional dev test environment.
+pytest>=8
