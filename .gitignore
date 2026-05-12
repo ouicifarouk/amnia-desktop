@@ -1,0 +1,40 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Tauri / Rust
+src-tauri/target/
+src-tauri/gen/
+target/
+**/*.rs.bk
+Cargo.lock.bak
+
+# Tailwind / build output
+src/assets/styles.css
+src/assets/styles.css.map
+dist/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+.python-version
+.pytest_cache/
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Local config / secrets
+.env
+.env.*
+*.local
+
+# Runtime
+*.log

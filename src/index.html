@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: asset: https://asset.localhost; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>amnia</title>
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body class="h-full bg-slate-50 text-slate-900 antialiased font-sans">
+    <!-- =========================================================
+         Top-level layout: a single <main> swapped by main.js
+         ========================================================= -->
+    <main id="app" class="h-full flex flex-col">
+      <!-- ----- Header ----- -->
+      <header class="border-b border-slate-200 bg-white">
+        <div class="mx-auto max-w-3xl px-6 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center text-white font-semibold">
+              a
+            </div>
+            <h1 class="text-lg font-semibold tracking-tight">
+              <span id="assistant-name-display">amnia</span>
+              <span class="text-slate-400 font-normal text-sm ml-1">desktop</span>
+            </h1>
+          </div>
+          <span id="status-pill"
+                class="hidden text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600">
+            idle
+          </span>
+        </div>
+      </header>
+
+      <!-- ----- Warnings banner (system capacity / GPU) ----- -->
+      <div id="warnings" class="mx-auto max-w-3xl w-full px-6 mt-4 space-y-2"></div>
+
+      <!-- ===================== Setup screen ===================== -->
+      <section id="screen-setup"
+               class="hidden flex-1 flex items-center justify-center px-6">
+        <div class="w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-sm p-8">
+          <h2 class="text-xl font-semibold">Welcome</h2>
+          <p class="mt-1 text-sm text-slate-500">
+            Choose a name for your local assistant. You can call it from any
+            terminal by typing that name.
+          </p>
+
+          <label for="assistant-name-input"
+                 class="block mt-6 text-sm font-medium text-slate-700">
+            Assistant name
+          </label>
+          <input id="assistant-name-input"
+                 type="text"
+                 value="amnia"
+                 maxlength="32"
+                 autocomplete="off"
+                 class="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2
+                        text-sm focus:outline-none focus:ring-2 focus:ring-brand-500
+                        focus:border-brand-500" />
+          <p id="assistant-name-error"
+             class="hidden mt-2 text-xs text-red-600"></p>
+
+          <button id="btn-setup-continue"
+                  class="mt-6 w-full inline-flex items-center justify-center rounded-lg
+                         bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium
+                         px-4 py-2.5 transition disabled:opacity-50 disabled:cursor-not-allowed">
+            Continue
+          </button>
+        </div>
+      </section>
+
+      <!-- ===================== Main screen ===================== -->
+      <section id="screen-main" class="hidden flex-1 px-6 py-6">
+        <div class="mx-auto max-w-3xl space-y-6">
+
+          <!-- System info card -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-5">
+            <h2 class="text-sm font-semibold text-slate-700">System</h2>
+            <dl id="sysinfo"
+                class="mt-3 grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <dt class="text-slate-500">RAM</dt>
+                <dd id="sysinfo-ram" class="font-medium">—</dd>
+              </div>
+              <div>
+                <dt class="text-slate-500">VRAM</dt>
+                <dd id="sysinfo-vram" class="font-medium">—</dd>
+              </div>
+              <div>
+                <dt class="text-slate-500">GPU</dt>
+                <dd id="sysinfo-gpu" class="font-medium">—</dd>
+              </div>
+              <div>
+                <dt class="text-slate-500">Safe budget</dt>
+                <dd id="sysinfo-budget" class="font-medium">—</dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Button A: Import project -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col">
+              <h3 class="text-sm font-semibold">Import amnia Project</h3>
+              <p class="mt-1 text-xs text-slate-500 flex-1">
+                Downloads the project from the URL configured in
+                <code class="text-[11px] bg-slate-100 px-1 py-0.5 rounded">python_sidecar/config.py</code>.
+              </p>
+              <button id="btn-import"
+                      class="mt-4 inline-flex items-center justify-center rounded-lg
+                             bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium
+                             px-4 py-2 transition">
+                Import
+              </button>
+              <div id="import-progress-wrap" class="hidden mt-3">
+                <div class="flex items-center justify-between text-xs text-slate-500">
+                  <span id="import-progress-label">Starting…</span>
+                  <span id="import-progress-pct">0%</span>
+                </div>
+                <div class="mt-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div id="import-progress-bar"
+                       class="h-full bg-brand-500 transition-all"
+                       style="width:0%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Button B: Local model -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col">
+              <h3 class="text-sm font-semibold">Download Local Model</h3>
+              <p class="mt-1 text-xs text-slate-500 flex-1">
+                Lists models available on the local Ollama instance and lets you pick one.
+              </p>
+              <button id="btn-models"
+                      class="mt-4 inline-flex items-center justify-center rounded-lg
+                             bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium
+                             px-4 py-2 transition">
+                Browse models
+              </button>
+            </div>
+          </div>
+
+          <!-- Model picker (hidden until "Browse models" clicked) -->
+          <div id="model-picker"
+               class="hidden bg-white border border-slate-200 rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-semibold">Available models</h3>
+              <button id="btn-models-close"
+                      class="text-xs text-slate-500 hover:text-slate-700">Close</button>
+            </div>
+            <input id="model-search"
+                   type="text"
+                   placeholder="Search models…"
+                   class="mt-3 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm
+                          focus:outline-none focus:ring-2 focus:ring-brand-500" />
+            <ul id="model-list"
+                class="mt-3 max-h-64 overflow-y-auto divide-y divide-slate-100 border
+                       border-slate-200 rounded-lg text-sm">
+              <li class="px-3 py-2 text-slate-400">Loading…</li>
+            </ul>
+            <div id="model-pull-status"
+                 class="hidden mt-3 text-xs text-slate-600"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./js/main.js"></script>
+  </body>
+</html>
